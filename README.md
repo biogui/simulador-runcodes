@@ -22,8 +22,9 @@ After that, clone the repository with and run setup.sh:
 &nbsp;&nbsp;&nbsp;&nbsp;`$ sh setup.sh`
 
 ## **Usage**
-Now, in any directory, just using the `rcsim` command:
-&nbsp;&nbsp;&nbsp;`$ rcsim <flag> <prog-path> <tests-path>`
+Now, in any directory, just using the `rcsim` command: `$ rcsim <flag> <prog-path> <tests-path>`
+
+*ps.: `rcsim` can be exchange by `python3 rcsimulator.py`, but it is necessary to have c in the current directory.*
 
 #### **The `<flag>`**
 This program treats different line endings(CR, LF, CR + LF) by default, in order to
@@ -32,15 +33,15 @@ This program treats different line endings(CR, LF, CR + LF) by default, in order
 
 &nbsp;&nbsp;&nbsp;&nbsp;`$ rcsim program.c Tests/`
 
-![Use example](/images/without_i.png)
+&nbsp;&nbsp;&nbsp;&nbsp;![Use example](/images/without_i1.png) ![Use example](/images/without_i2.png)
 - Use with flag:
 
 &nbsp;&nbsp;&nbsp;&nbsp;`$ rcsim -i program.c Tests/`
 
-![Use example](/images/without_i.png)
+&nbsp;&nbsp;&nbsp;&nbsp;![Use example](/images/with_i1.png) ![Use example](/images/with_i2.png)
 
 #### **The `<prog-path>`**
-This program have suports to *unic file* and *multiple files with a Makefile* projects. In the `<prog-path>` field add the path to the .c file or Makefile.
+This program suports *singular* or multiple files depending only on *Makefile* being included. In the `<prog-path>` field add the path to the .c file or Makefile.
 
 #### **The `<tests-path>`**
-This program have suports to *zip files* and *pre-existing directory* with the test cases. In the `<files-path>` field add the path to the .zip file or directory with the test-cases.
+This program suports both *ZIP archives* and *local directories* as for the test cases. In the `<files-path>` field add the path to the .zip file or directory with the test-cases.
