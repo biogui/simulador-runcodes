@@ -1,31 +1,5 @@
 #!/usr/bin/python3
-# Simulador de runcodes para terminal, by Bio
-
-'''
-Certifique-se de possuir um arquivo ZIP(ou pasta) com as entradas e saídas esperadas para seu 
-programa, e de indicar os caminhos corretos no momento da execução.
-
-Para execução do programa basta rodar um dos seguintes comandos:
-	-Caso tenha executado o setup.sh:
-		$ runcodes <caminho_prog> <caminho_testes>
-	-Caso contrário(certificando-se que este programa está na sua pasta atual):
-		$ python3 runcodes.py <caminho_prog> <caminho_testes>
-
-	Legenda:
-		caminho_prog = caminho para o único.c ou Makefile
-		caminho_testes = caminho para o .zip ou pasta com os casos testes
-
-	Exemplos:
-		$ runcodes Codígos/Makefile ~/Downloads/testes.zip
-		$ runcodes Aula1/Trabalho1/programa.c Aula1/Trabalho1/Testes
-		$ runcodes programa.c testes.zip
-
-	Obs:
-		-De preferência execute o "runcodes" no diretório com seu único programa ou Makefile
-		-Este programa trata diferença entre finalizadores de linha('\r', '\n', '\r\n') por padrão, 
-		caso queira ignorar essa diferenças utilize a flag "-i". Exemplo:
-			$ runcodes -i programa.c testes.zip
-'''
+# Python Scrypt by Guilherme Rios(Bio) - 2020
 import subprocess
 from sys import argv
 from os import system, listdir, path
@@ -38,8 +12,11 @@ QUIET = 1
 
 TAB = "    "
 
-# Verifica os argumentos ###########################################################################
-if not path.isdir(argv[-1]) and argv[-1][-4:] != ".zip" or len(argv) < 3:
+# Valid paths's arguments ##################################################################
+if len(argv) < 3:
+	print("Run with valid arguments!")
+	exit()
+if not path.isdir(argv[-1]) and argv[-1][-4:] != ".zip":
 	print("Run with valid tests' path argument!")
 	exit()
 if argv[-2][-2:] != ".c" and argv[-2][-8:] != "Makefile":
@@ -90,7 +67,7 @@ def len_to_ignore_mode(line):
 		if char == '\n' or char == '\r':
 			return i
 
-	# Caso fim de linha termina o arquivo
+	# EOF case
 	return i + 1
  
 def is_correct(out_file, my_file):
@@ -129,7 +106,7 @@ def is_correct(out_file, my_file):
 		if expected_line != my_line:
 			pos_fails = list()
 
-			# Ignora finalizadores de linha para o calculo de tamanho
+			# Recalculate lenths ignoring 
 			if IGNORE_MODE:
 				ex_len = len_to_ignore_mode(expected_line)
 				my_len = len_to_ignore_mode(my_line)
@@ -222,7 +199,7 @@ def print_errors(all_errors):
 			print(stylizes_str("|", C.red))
 		print("\n-----------------------------------")
 
-# Compilação #######################################################################################
+# Compile ##########################################################################################
 if PROGRAM_PATH[-8:] == "Makefile":
 	mode = MULTIPLE
 	cmd = subprocess.Popen(["make", "all"], stderr=subprocess.PIPE)
@@ -230,7 +207,7 @@ if PROGRAM_PATH[-8:] == "Makefile":
 
 	if error_out:
 		system("make all")
-		print("\nCompilation error! Exiting...")
+		print("\nMakefile error! Exiting...")
 		exit()
 else:
 	mode = UNIC
@@ -244,7 +221,7 @@ else:
 		print("\nCompilation error! Exiting...")
 		exit()
 
-# Extrai inputs e outputs ##########################################################################
+# Set dirr to inputs and outputs ###################################################################
 if TESTS_PATH[-4:] == '.zip':
 	tests_dirr = "tests/"
 	cmd = subprocess.Popen(["unzip", "-qqo", TESTS_PATH, "-d", tests_dirr], stderr=subprocess.PIPE)
@@ -259,13 +236,13 @@ else:
 
 inputs, outputs = get_inputs_and_outputs(tests_dirr)
 
-# Define o gatilho para execução ###################################################################
+# Define the trigger to running ####################################################################
 if mode == MULTIPLE:
 	trigger = ["make", "run"]
 elif mode == UNIC:
 	trigger = [f"./{program}", ""]
 
-# Executa e gera saídas do usuário #################################################################
+# Run and generates outputs #########################################################################
 my_outs = list()
 for inp in inputs:
 	my_out = f"{inp[:-3]}.myout"
@@ -281,11 +258,11 @@ for inp in inputs:
 	open(my_out, "wb").write(out)
 	my_outs.append(f"{my_out}")
 
-# Confere e guarda os erros ########################################################################
+# Check outputs and get errors #####################################################################
 all_errors = dict()
 n_cases, n_corrects = 0, 0
 
-print(stylizes_str("------------ Coference ------------", style=S.strong))
+print(stylizes_str("\n------------ Coference ------------", style=S.strong))
 for out, my_out in zip(outputs, my_outs):
 	correct, file_errors = is_correct(out, my_out)
 	n_cases += 1
@@ -301,10 +278,10 @@ emoji = define_emoji(n_corrects, n_cases)
 print(f"\n>>>>>> {str(n_corrects).zfill(2)}/{str(n_cases).zfill(2)} correct outputs <<<<<<")
 print(f"{emoji:^34}\n")
 
-# Imprime erros caso existam #######################################################################
+# Print errors if ther are #########################################################################
 if len(all_errors): print_errors(all_errors)
 
-# Deleta arquivos ##################################################################################
+# Clean files ######################################################################################
 if mode == MULTIPLE: 
 	system(f"rm {PROGRAM_PATH[:-8]}*.o {PROGRAM_PATH[:-8]}*.gch")
 elif mode == UNIC:
