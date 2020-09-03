@@ -13,7 +13,7 @@ Make sure to:
 - Have a recent python version[(3.x.x)](https://realpython.com/installing-python/) installed.
 - Have the command [`unzip`](https://www.hostinger.com/tutorials/how-to-unzip-files-linux/) installed in your terminal. 
 
-After that, clone the repository with and run setup.sh:
+After that, clone the repository and run setup.sh:
 
 &nbsp;&nbsp;&nbsp;&nbsp;`$ git clone https://github.com/biogui/runcodes-system-simulator.git ~/.rcsimulator`
 
