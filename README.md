@@ -4,7 +4,7 @@
 
 Hi, I'm [Bio](https://github.com/biogui)!
 
-And this is a script for run.codes' users testing yours programs before submit.
+And this is a script for [run.codes](https://we.run.codes/)' users testing yours programs before submit.
 
 Thanks for testing, feedbacks are awesome! Feel free to contact me on telegram [here](https://t.me/gui_bio) :)
 
@@ -33,15 +33,15 @@ This program treats different line endings(CR, LF, CR + LF) by default, in order
 
 &nbsp;&nbsp;&nbsp;&nbsp;`$ rcsim program.c Tests/`
 
-&nbsp;&nbsp;&nbsp;&nbsp;![Use example](/images/without_i1.png) ![Use example](/images/without_i2.png)
+&nbsp;&nbsp;&nbsp;&nbsp;![Use example](/images/without_flag.jpg)
 - Use with flag:
 
 &nbsp;&nbsp;&nbsp;&nbsp;`$ rcsim -i program.c Tests/`
 
-&nbsp;&nbsp;&nbsp;&nbsp;![Use example](/images/with_i1.png) ![Use example](/images/with_i2.png)
+&nbsp;&nbsp;&nbsp;&nbsp;![Use example](/images/with_flag.jpg)
 
 #### **The `<prog-path>`**
-This program suports *singular* or multiple files depending only on *Makefile* being included. In the `<prog-path>` field add the path to the .c file or Makefile.
+This program suports *singular C program* or multiple files depending only on *Makefile* being included. In the `<prog-path>` field add the path to the .c file or Makefile.
 
 #### **The `<tests-path>`**
 This program suports both *ZIP archives* and *local directories* as for the test cases. In the `<files-path>` field add the path to the .zip file or directory with the test-cases.
