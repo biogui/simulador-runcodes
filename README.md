@@ -31,14 +31,14 @@ This program treats different line endings(CR, LF, CR + LF) by default, in order
 		ignore that, use the "-i" flag in your respective field.
 - Use without flag:
 
-&nbsp;&nbsp;&nbsp;&nbsp;`$ rcsim program.c Tests/`
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`$ rcsim program.c Tests/`
 
-&nbsp;&nbsp;&nbsp;&nbsp;![Use example](/images/without_flag.jpg)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![Use example](/images/without_flag.jpg)
 - Use with flag:
 
-&nbsp;&nbsp;&nbsp;&nbsp;`$ rcsim -i program.c Tests/`
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`$ rcsim -i program.c Tests/`
 
-&nbsp;&nbsp;&nbsp;&nbsp;![Use example](/images/with_flag.jpg)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![Use example](/images/with_flag.jpg)
 
 #### **The `<prog-path>`**
 This program suports *singular C program* or multiple files depending only on *Makefile* being included. In the `<prog-path>` field add the path to the .c file or Makefile.
