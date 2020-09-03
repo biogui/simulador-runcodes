@@ -12,7 +12,7 @@ QUIET = 1
 
 TAB = "    "
 
-# Valid paths's arguments ##################################################################
+# Valid paths's arguments ##########################################################################
 if len(argv) < 3:
 	print("Run with valid arguments!")
 	exit()
@@ -242,7 +242,7 @@ if mode == MULTIPLE:
 elif mode == UNIC:
 	trigger = [f"./{program}", ""]
 
-# Run and generates outputs #########################################################################
+# Run and generates outputs ########################################################################
 my_outs = list()
 for inp in inputs:
 	my_out = f"{inp[:-3]}.myout"
@@ -283,9 +283,9 @@ if len(all_errors): print_errors(all_errors)
 
 # Clean files ######################################################################################
 if mode == MULTIPLE: 
-	system(f"rm {PROGRAM_PATH[:-8]}*.o {PROGRAM_PATH[:-8]}*.gch")
+	system(f"rm -f {PROGRAM_PATH[:-8]}*.o {PROGRAM_PATH[:-8]}*.gch")
 elif mode == UNIC:
-	system(f"rm {program}")
+	system(f"rm -f {program}")
 
 if TESTS_PATH[-4:] == ".zip":
 	system(f"rm -rf tests")
