@@ -148,9 +148,9 @@ def print_errors(all_errors):
 	my_indicator = stylizes_str("< |", C.red)
 	arrow = stylizes_str("╰-> ", style=S.strong)
 
-	separator = stylizes_str('-' * 75, style=S.strong)
+	separator = stylizes_str('-' * 77, style=S.strong)
 	title = " Differences "
-	print(stylizes_str(f"{title:-^75}", style=S.strong))
+	print(stylizes_str(f"{title:-^77}", style=S.strong))
 
 	for case, case_errors in all_errors.items():
 		print(stylizes_str(f"Case {case}:", style=S.strong))
@@ -269,24 +269,24 @@ all_errors = dict()
 n_cases, n_corrects = 0, 0
 
 title = " Coference "
-print(stylizes_str(f"\n{title:-^75}", style=S.strong))
+print(stylizes_str(f"\n{title:-^77}", style=S.strong))
 for out, my_out in zip(outputs, my_outs):
 	correct, file_errors = is_correct(out, my_out)
 	n_cases += 1
 
 	if correct:
 		result = f"Case {str(n_cases).zfill(2)} is correct!"
-		print(f"{result:^75}")
+		print(f"{result:^77}")
 
 		n_corrects += 1
 	else:
 		result = f"Case {str(n_cases).zfill(2)} is incorrect!"
-		print(f"{result:^75}")
+		print(f"{result:^77}")
 
 		all_errors[n_cases] = file_errors
 
-init = '>' * 26
-end = '<' * 26
+init = '>' * 27
+end = '<' * 27
 emoji = define_emoji(n_corrects, n_cases)
 print(f"\n{init} {str(n_corrects).zfill(2)}/{str(n_cases).zfill(2)} correct outputs {end}")
 print(f"{emoji:^86}\n")
@@ -304,9 +304,10 @@ print_mem_check = True if print_mem_check[0] == "y" else False
 
 if print_mem_check:
 	title = " Memory Check "
-	print(stylizes_str(f"\n{title:-^75}", style=S.strong))
+	print(stylizes_str(f"\n{title:-^77}", style=S.strong))
 	for i, inp in enumerate(inputs):
-		print(stylizes_str(f"Case {i+1}:", style=S.strong))
+		case_name = f"Case {i+1} "
+		print(stylizes_str(f"{case_name:-<77}", style=S.strong))
 
 		stdin = open(inp, "rb").read()
 		cmd_valgrind = subprocess.Popen(["valgrind", "--leak-check=full", "--show-leak-kinds=all", "--track-origins=yes", f"./{program}"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
