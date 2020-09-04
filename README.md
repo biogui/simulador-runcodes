@@ -23,9 +23,9 @@ Thanks for testing, feedbacks are awesome! Feel free to contact me on telegram [
 Make sure to:
 - Have a recent ***python*** version[(3.x.x)](https://realpython.com/installing-python/) installed.
 - Have this commands installed in your terminal:
- - ***gcc*** - use `sudo apt install gcc`
- - ***valgrind*** - use `sudo apt install valgrind`
- - ***unzip*** - use `sudo apt install unzip`
+	- ***gcc*** - use `sudo apt install gcc`
+	- ***valgrind*** - use `sudo apt install valgrind`
+	- ***unzip*** - use `sudo apt install unzip`
 
 After that, clone the repository and ***run setup.sh***:
 
