@@ -133,27 +133,31 @@ def is_correct(out_file, my_file):
 
 def define_emoji(n_corrects, n_cases):
 	if n_corrects == n_cases:
-		return "(o゜▽゜)o☆"
+		return stylizes_str("(o゜▽゜)o☆", style=S.strong)
 	elif n_corrects > 3*n_cases//4:
-		return "o(*￣▽￣*)o"
+		return stylizes_str("o(*￣▽￣*)o", style=S.strong)
 	elif n_corrects > n_cases//2:
-		return "^____^"
+		return stylizes_str("^____^", style=S.strong)
 	elif n_corrects > n_cases//4:
-		return "(┬┬﹏┬┬)"
+		return stylizes_str("(┬┬﹏┬┬)", style=S.strong)
 	else:
-		return "(╯°□°）╯︵ ┻━┻"
+		return stylizes_str("(╯°□°）╯︵ ┻━┻", style=S.strong)
 
 def print_errors(all_errors):
 	ex_indicator = stylizes_str("> |", C.green)
 	my_indicator = stylizes_str("< |", C.red)
-	print(stylizes_str("----------- Differences -----------", style=S.strong))
+	arrow = stylizes_str("╰-> ", style=S.strong)
+
+	separator = stylizes_str('-' * 75, style=S.strong)
+	title = " Differences "
+	print(stylizes_str(f"{title:-^75}", style=S.strong))
 
 	for case, case_errors in all_errors.items():
-		print(f"Case {case}:")
+		print(stylizes_str(f"Case {case}:", style=S.strong))
 
 		for line, error in case_errors.items():
 			if line < 0:
-				print(f"╰-> {error[0]} lines from the line {-line}:")
+				print(f"{arrow}{error[0]} lines from the line {-line}:")
 				if error[0] == "surplus":
 					indicator = stylizes_str("< ", C.red)
 					color = C.red
@@ -167,7 +171,7 @@ def print_errors(all_errors):
 
 				break
 
-			print(f"╰-> line {line}:")
+			print(f"{arrow}line {line}:")
 			print(f"{TAB}{ex_indicator}", end="")
 			for pos, eChr in enumerate(error[0]):
 				if eChr == '\r':
@@ -197,7 +201,8 @@ def print_errors(all_errors):
 
 				print(char, end="")
 			print(stylizes_str("|", C.red))
-		print("\n-----------------------------------")
+
+		print(f"\n{separator}")
 
 # Compile ##########################################################################################
 if PROGRAM_PATH[-8:] == "Makefile":
@@ -244,15 +249,16 @@ elif mode == UNIC:
 
 # Run and generates outputs ########################################################################
 my_outs = list()
+valgrind_outs = list()
 for inp in inputs:
 	my_out = f"{inp[:-3]}.myout"
 	stdin = open(inp, "rb").read()
-	cmd = subprocess.Popen([trigger[0], trigger[1]], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-	out, error_out = cmd.communicate(stdin)
+	cmd_run = subprocess.Popen([trigger[0], trigger[1]], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	out, error_out = cmd_run.communicate(stdin)
 
 	if error_out:
-		print(error_out)
-		print("\nExecution error! Exiting...")
+		print(error_out.decode())
+		print("Execution error! Exiting...")
 		exit()
 
 	open(my_out, "wb").write(out)
@@ -262,24 +268,50 @@ for inp in inputs:
 all_errors = dict()
 n_cases, n_corrects = 0, 0
 
-print(stylizes_str("\n------------ Coference ------------", style=S.strong))
+title = " Coference "
+print(stylizes_str(f"\n{title:-^75}", style=S.strong))
 for out, my_out in zip(outputs, my_outs):
 	correct, file_errors = is_correct(out, my_out)
 	n_cases += 1
 
 	if correct:
-		print(f"        Case {str(n_cases).zfill(2)} is correct!")
+		result = f"Case {str(n_cases).zfill(2)} is correct!"
+		print(f"{result:^75}")
+
 		n_corrects += 1
 	else:
-		all_errors[n_cases] = file_errors
-		print(f"       Case {str(n_cases).zfill(2)} is incorrect!")
+		result = f"Case {str(n_cases).zfill(2)} is incorrect!"
+		print(f"{result:^75}")
 
+		all_errors[n_cases] = file_errors
+
+init = '>' * 26
+end = '<' * 26
 emoji = define_emoji(n_corrects, n_cases)
-print(f"\n>>>>>> {str(n_corrects).zfill(2)}/{str(n_cases).zfill(2)} correct outputs <<<<<<")
-print(f"{emoji:^34}\n")
+print(f"\n{init} {str(n_corrects).zfill(2)}/{str(n_cases).zfill(2)} correct outputs {end}")
+print(f"{emoji:^86}\n")
 
 # Print errors if ther are #########################################################################
 if len(all_errors): print_errors(all_errors)
+
+# Valgrind memory coference ########################################################################
+print_mem_check = input("\nWould you like to test your program with valgrind?(y/n) ").lower()
+
+while print_mem_check != "y" and print_mem_check != "yes" and print_mem_check != "n" and print_mem_check != "no":
+	print_mem_check = input("Invalid option, try again... ").lower()
+
+print_mem_check = True if print_mem_check[0] == "y" else False
+
+if print_mem_check:
+	title = " Memory Check "
+	print(stylizes_str(f"\n{title:-^75}", style=S.strong))
+	for i, inp in enumerate(inputs):
+		print(stylizes_str(f"Case {i+1}:", style=S.strong))
+
+		stdin = open(inp, "rb").read()
+		cmd_valgrind = subprocess.Popen(["valgrind", "--leak-check=full", "--show-leak-kinds=all", "--track-origins=yes", f"./{program}"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		stdout, valgrind_out = cmd_valgrind.communicate(stdin)
+		print(valgrind_out.decode())
 
 # Clean files ######################################################################################
 if mode == MULTIPLE: 
@@ -289,3 +321,5 @@ elif mode == UNIC:
 
 if TESTS_PATH[-4:] == ".zip":
 	system(f"rm -rf tests")
+
+print(stylizes_str("Byee ヾ(￣▽￣)", style=S.strong))
