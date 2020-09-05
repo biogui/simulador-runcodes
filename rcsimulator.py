@@ -24,8 +24,8 @@ if argv[-2][-2:] != ".c" and argv[-2][-8:] != "Makefile":
 	exit()
 
 IGNORE_MODE = True if argv[1] == "-i" else False
-PROGRAM_PATH = argv[-2]
-TESTS_PATH = argv[-1]
+PROGRAM_PATH = f"./{argv[-2]}"
+TESTS_PATH = f"./{argv[-1]}"
 
 class S: # Style flags
 	none = ";0"
@@ -53,12 +53,28 @@ def stylizes_str(string, color=C.none, style=S.none):
 	end = "\033[m"
 	return "{}{}{}".format(start, string, end)
 
+def get_program_dirr(path):
+	for i, char in enumerate(path[::-1]):
+		if char == '/':
+			return path[:len(path)-i]
+
+def get_program_name(prev_files, curr_files):
+	for file in curr_files:
+		if file not in prev_files:
+			return file
+
 def get_inputs_and_outputs(tests_dirr):
 	ins = list()
 	outs = list()
-	for file in listdir(tests_dirr):
-		if file[-3:] == ".in": ins.append(f"{tests_dirr}/{file}")
-		if file[-4:] == ".out": outs.append(f"{tests_dirr}/{file}")
+
+	files = listdir(tests_dirr)
+	for file in files:
+		if file[-3:] == ".in":
+			out_pair = f"{file[:-3]}.out"
+
+			if out_pair in files:
+				ins.append(f"{tests_dirr}{file}")
+				outs.append(f"{tests_dirr}{out_pair}")
 
 	return ins, outs
 
@@ -69,7 +85,7 @@ def len_to_ignore_mode(line):
 
 	# EOF case
 	return i + 1
- 
+
 def is_correct(out_file, my_file):
 	expected_out = open(out_file, "rb")
 	my_out = open(my_file, "rb")
@@ -78,51 +94,57 @@ def is_correct(out_file, my_file):
 	errors = dict()
 	over_lines = list()
 	while True:
-		expected_line = expected_out.readline().decode()
-		my_line = my_out.readline().decode()
-		line_posix += 1
+		try:
+			expected_line = expected_out.readline().decode()
+			my_line = my_out.readline().decode()
+			line_posix += 1
 
-		ex_len = len(expected_line)
-		my_len = len(my_line)
+			ex_len = len(expected_line)
+			my_len = len(my_line)
 
-		if ex_len == 0 and my_len == 0:
-			break
-		if ex_len == 0:
-			while my_line:
-				over_lines.append(my_line)
-				my_line = my_out.readline().decode()
-			over_lines.insert(0, "surplus")
+			if ex_len == 0 and my_len == 0:
+				break
 
-			break
-		if my_len == 0:
-			over_lines = list()
-			while expected_line:
-				over_lines.append(expected_line)
-				expected_line = expected_out.readline().decode()
-			over_lines.insert(0, "missing")
+			if ex_len == 0:
+				while my_line:
+					over_lines.append(my_line)
+					my_line = my_out.readline().decode()
+				over_lines.insert(0, "surplus")
 
-			break
+				break
 
-		if expected_line != my_line:
-			pos_fails = list()
+			if my_len == 0:
+				over_lines = list()
+				while expected_line:
+					over_lines.append(expected_line)
+					expected_line = expected_out.readline().decode()
+				over_lines.insert(0, "missing")
 
-			# Recalculate lenths ignoring 
-			if IGNORE_MODE:
-				ex_len = len_to_ignore_mode(expected_line)
-				my_len = len_to_ignore_mode(my_line)
+				break
 
-			min_len = min(my_len, ex_len)
-			max_len = max(my_len, ex_len)
+			if expected_line != my_line:
+				pos_fails = list()
 
-			for i in range(min_len):
-				if expected_line[i] != my_line[i]:
+				# Recalculate lenths ignoring 
+				if IGNORE_MODE:
+					ex_len = len_to_ignore_mode(expected_line)
+					my_len = len_to_ignore_mode(my_line)
+
+				min_len = min(my_len, ex_len)
+				max_len = max(my_len, ex_len)
+
+				for i in range(min_len):
+					if expected_line[i] != my_line[i]:
+						pos_fails.append(i)
+
+				for i in range(min_len, max_len):
 					pos_fails.append(i)
 
-			for i in range(min_len, max_len):
-				pos_fails.append(i)
+				if pos_fails:
+					errors[line_posix] = (expected_line, my_line, pos_fails)
 
-			if pos_fails:
-				errors[line_posix] = (expected_line, my_line, pos_fails)
+		except UnicodeDecodeError:
+			pass
 
 	if over_lines: errors[-line_posix] = over_lines
 	is_correct = True
@@ -198,7 +220,6 @@ def print_errors(all_errors):
 
 				if pos in error[2]:
 					char = stylizes_str(char, C.red)
-
 				print(char, end="")
 			print(stylizes_str("|", C.red))
 
@@ -207,6 +228,9 @@ def print_errors(all_errors):
 # Compile ##########################################################################################
 if PROGRAM_PATH[-8:] == "Makefile":
 	mode = MULTIPLE
+	program_dirr = get_program_dirr(PROGRAM_PATH)
+	prev_files = listdir(program_dirr)
+
 	cmd = subprocess.Popen(["make", "all"], stderr=subprocess.PIPE)
 	error_out = cmd.stderr.read()
 
@@ -214,15 +238,21 @@ if PROGRAM_PATH[-8:] == "Makefile":
 		system("make all")
 		print("\nMakefile error! Exiting...")
 		exit()
+
+	curr_files = listdir(program_dirr)
+	program = get_program_name(prev_files, curr_files)
+	system(f"rm -f {PROGRAM_PATH[:-8]}*.o {PROGRAM_PATH[:-8]}*.gch")
+
 else:
 	mode = UNIC
 	program = PROGRAM_PATH[:-2]
-	flags = "-g -Wall -Werror -lm"
-	cmd = subprocess.Popen(["gcc", "-g", "-Wall", "-Werror", "-lm", f"{program}.c", "-o", program], stderr=subprocess.PIPE)
+
+	cmd = subprocess.Popen(["gcc", f"{program}.c", "-o", program, "-g", "-Wall", "-Werror", "-lm"], stderr=subprocess.PIPE)
 	error_out = cmd.stderr.read()
 
 	if error_out:
 		system(f"gcc {flags} {program}.c -o {program}")
+
 		print("\nCompilation error! Exiting...")
 		exit()
 
@@ -233,6 +263,8 @@ if TESTS_PATH[-4:] == '.zip':
 	error_out = cmd.stderr.read().decode("utf-8")
 
 	if error_out:
+		system(f"rm {program}")
+
 		print(error_out)
 		print("Unpacking error! Exiting...")
 		exit()
@@ -253,10 +285,13 @@ valgrind_outs = list()
 for inp in inputs:
 	my_out = f"{inp[:-3]}.myout"
 	stdin = open(inp, "rb").read()
+
 	cmd_run = subprocess.Popen([trigger[0], trigger[1]], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	out, error_out = cmd_run.communicate(stdin)
 
 	if error_out:
+		system(f"rm -rf {program} tests/")
+
 		print(error_out.decode())
 		print("Execution error! Exiting...")
 		exit()
@@ -315,12 +350,9 @@ if print_mem_check:
 		print(valgrind_out.decode())
 
 # Clean files ######################################################################################
-if mode == MULTIPLE: 
-	system(f"rm -f {PROGRAM_PATH[:-8]}*.o {PROGRAM_PATH[:-8]}*.gch")
-elif mode == UNIC:
-	system(f"rm -f {program}")
+system(f"rm -f {program}")
 
 if TESTS_PATH[-4:] == ".zip":
-	system(f"rm -rf tests")
+	system(f"rm -rf tests/")
 
 print(stylizes_str("Byee ヾ(￣▽￣)", style=S.strong))

@@ -43,12 +43,12 @@ Now, in any directory, just ***using the `rcsim` command***: `$ rcsim <flag> <pr
 #### **The `<flag>`**
 This program treats different line endings(CR, LF, CR + LF) by default, in order to
 		ignore that, use the "-i" flag in your respective field.
-- Use without flag:
+- Using without flag:
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`$ rcsim program.c Tests/`
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![Use example](/images/without_flag.jpg)
-- Use with flag:
+- Using with flag:
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`$ rcsim -i program.c Tests/`
 
@@ -59,3 +59,8 @@ This program suports *singular C program* or multiple files depending only on *M
 
 #### **The `<tests-path>`**
 This program suports both *ZIP archives* and *local directories* as for the test cases. In the `<files-path>` field add the path to the .zip file or directory with the test-cases.
+
+## **Notes**
+- ***Prioritize running the simulator in the directory where your program or makefile is***.
+- ***Avoid killing the process during execution***. Unexpected stops end up not executing the cleaning of the files, which can generate problems in future processes. Processing may take longer for more complex programs, be patient.
+- ***Pay attention to having your test cases organized in the directory or ZIP file you are using***. If there are other files with the tests, separate them, leaving a exclusive path for your tests. Beware of programs that deal with reading files, make sure they are in the proper directory before execution.
