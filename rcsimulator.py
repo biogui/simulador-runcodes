@@ -73,8 +73,8 @@ def get_inputs_and_outputs(tests_dirr):
 			out_pair = f"{file[:-3]}.out"
 
 			if out_pair in files:
-				ins.append(f"{tests_dirr}{file}")
-				outs.append(f"{tests_dirr}{out_pair}")
+				ins.append(f"{tests_dirr}/{file}")
+				outs.append(f"{tests_dirr}/{out_pair}")
 
 	return ins, outs
 
