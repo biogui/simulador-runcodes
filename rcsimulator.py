@@ -61,7 +61,8 @@ def get_program_dirr(path):
 def get_program_name(prev_files, curr_files):
 	for file in curr_files:
 		if file not in prev_files:
-			return file
+			if file.split(".")[-1] not in ["o", "gch"]:
+				return file
 
 def get_inputs_and_outputs(tests_dirr):
 	ins = list()
