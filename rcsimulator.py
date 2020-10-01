@@ -4,26 +4,20 @@ import subprocess
 from sys import argv
 from os import system, listdir, path
 
-UNIC = 0
-MULTIPLE = 1
+TAB = " "*4
 
-VERBOSE = 0
-QUIET = 1
-
-TAB = "    "
-
-# Valid paths' arguments ##########################################################################
+# Valid paths' arguments ###########################################################################
 if len(argv) < 3:
     print("Run with valid arguments!")
     exit()
-if not path.isdir(argv[-1]) and argv[-1][-4:] != ".zip":
+if not path.isdir(argv[-1]) and argv[-1].endswith(".zip"):
     print("Run with valid tests' path argument!")
     exit()
-if argv[-2][-2:] != ".c" and argv[-2][-8:] != "Makefile":
+if not argv[-2].endswith(".c") and not argv[-2].endswith("Makefile"):
     print("Run with valid arguments!")
     exit()
 
-IGNORE_MODE = True if argv[1] == "-i" else False
+IGNORE_MODE = (argv[1] == "-i")
 PROGRAM_PATH = f"./{argv[-2]}"
 TESTS_PATH = f"./{argv[-1]}"
 
@@ -37,7 +31,7 @@ class S: # Style flags
     negative = ";7"
     strike = ";9"
 
-class C: # Colors flags
+class C: # Color flags
     none = ";50"
     black = ";30"
     red = ";31"
@@ -54,7 +48,7 @@ def stylize_str(string, color=C.none, style=S.none):
     return "{}{}{}".format(start, string, end)
 
 def get_program_dir(path):
-    for i, char in enumerate(path[::-1]):
+    for i, char in enumerate(reversed(path)):
         if char == '/':
             return path[:len(path)-i]
 
@@ -81,7 +75,7 @@ def get_inputs_and_outputs(tests_dir):
 
 def len_to_ignore_mode(line):
     for i, char in enumerate(line):
-        if char == '\n' or char == '\r':
+        if char in ['\n', '\r']:
             return i
 
     # EOF case
@@ -126,7 +120,7 @@ def is_correct(out_file, my_file):
             if expected_line != my_line:
                 pos_fails = list()
 
-                # Recalculate lengths 
+                # Recalculate lengths
                 if IGNORE_MODE:
                     ex_len = len_to_ignore_mode(expected_line)
                     my_len = len_to_ignore_mode(my_line)
@@ -147,21 +141,20 @@ def is_correct(out_file, my_file):
         except UnicodeDecodeError:
             pass
 
-    if over_lines: errors[-line_posix] = over_lines
-    is_correct = True
-    if len(errors) > 0:
-        is_correct = False
-
+    if over_lines:
+        errors[-line_posix] = over_lines
+    
+    is_correct = (len(errors) == 0)
     return is_correct, errors
 
 def define_emoji(n_corrects, n_cases):
     if n_corrects == n_cases:
         return stylize_str("(o゜▽゜)o☆", style=S.strong)
-    elif n_corrects > 3*n_cases//4:
+    elif n_corrects > (3/4) * n_cases:
         return stylize_str("o(*￣▽￣*)o", style=S.strong)
-    elif n_corrects > n_cases//2:
+    elif n_corrects > (2/4) * n_cases:
         return stylize_str("^____^", style=S.strong)
-    elif n_corrects > n_cases//4:
+    elif n_corrects > (1/4) * n_cases:
         return stylize_str("(┬┬﹏┬┬)", style=S.strong)
     else:
         return stylize_str("(╯°□°）╯︵ ┻━┻", style=S.strong)
@@ -227,8 +220,7 @@ def print_errors(all_errors):
         print(f"\n{separator}")
 
 # Compile ##########################################################################################
-if PROGRAM_PATH[-8:] == "Makefile":
-    mode = MULTIPLE
+if PROGRAM_PATH.endswith("Makefile"):
     program_dir = get_program_dir(PROGRAM_PATH)
     prev_files = listdir(program_dir)
 
@@ -245,7 +237,6 @@ if PROGRAM_PATH[-8:] == "Makefile":
     system(f"rm -f {PROGRAM_PATH[:-8]}*.o {PROGRAM_PATH[:-8]}*.gch")
 
 else:
-    mode = UNIC
     program = PROGRAM_PATH[:-2]
 
     cmd = subprocess.Popen(["gcc", f"{program}.c", "-o", program, "-g", "-Wall", "-Werror", "-lm"], stderr=subprocess.PIPE)
@@ -257,8 +248,8 @@ else:
         print("\nCompilation error! Exiting...")
         exit()
 
-# Set dir to inputs and outputs ###################################################################
-if TESTS_PATH[-4:] == '.zip':
+# Set dir to inputs and outputs ####################################################################
+if TESTS_PATH.endswith(".zip"):
     tests_dir = "tests/"
     cmd = subprocess.Popen(["unzip", "-qqo", TESTS_PATH, "-d", tests_dir], stderr=subprocess.PIPE)
     error_out = cmd.stderr.read().decode("utf-8")
@@ -275,12 +266,12 @@ else:
 inputs, outputs = get_inputs_and_outputs(tests_dir)
 
 # Define the trigger to running ####################################################################
-if mode == MULTIPLE:
+if PROGRAM_PATH.endswith("Makefile"):
     trigger = ["make", "run"]
-elif mode == UNIC:
+else:
     trigger = [f"./{program}", ""]
 
-# Run and generate outputs ########################################################################
+# Run and generate outputs #########################################################################
 my_outs = list()
 valgrind_outs = list()
 for inp in inputs:
@@ -327,18 +318,17 @@ emoji = define_emoji(n_corrects, n_cases)
 print(f"\n{init} {str(n_corrects).zfill(2)}/{str(n_cases).zfill(2)} correct outputs {end}")
 print(f"{emoji:^86}\n")
 
-# Print errors if there are any #########################################################################
-if len(all_errors): print_errors(all_errors)
+# Print errors if there are any ####################################################################
+if all_errors:
+    print_errors(all_errors)
 
-# Valgrind memory check ########################################################################
-print_mem_check = input("\nWould you like to test your program with valgrind?(y/n) ").lower()
+# Valgrind memory check ############################################################################
+print_mem_check = input("\nWould you like to test your program with valgrind? (y/n) ").lower()
 
-while print_mem_check != "y" and print_mem_check != "yes" and print_mem_check != "n" and print_mem_check != "no":
-    print_mem_check = input("Invalid option, try again... ").lower()
+while not (print_mem_check.startswith("y") or print_mem_check.startswith("n")):
+    print_mem_check = input("Invalid option, try again... (y/n) ").lower()
 
-print_mem_check = True if print_mem_check[0] == "y" else False
-
-if print_mem_check:
+if print_mem_check.startswith("y"):
     title = " Memory Check "
     print(stylize_str(f"\n{title:-^77}", style=S.strong))
     for i, inp in enumerate(inputs):
@@ -351,6 +341,12 @@ if print_mem_check:
         print(valgrind_out.decode())
 
 # Clean files ######################################################################################
+system(f"rm -f {program}")
+
+if TESTS_PATH.endswith(".zip"):
+    system(f"rm -rf tests/")
+
+print(stylize_str("Byee ヾ(￣▽￣)", style=S.strong))##############################
 system(f"rm -f {program}")
 
 if TESTS_PATH[-4:] == ".zip":
