@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-# Python Scrypt by Guilherme Rios(Bio) - 2020
+# Python Script by Guilherme Rios(Bio) - 2020
 import subprocess
 from sys import argv
 from os import system, listdir, path
@@ -12,7 +12,7 @@ QUIET = 1
 
 TAB = "    "
 
-# Valid paths's arguments ##########################################################################
+# Valid paths' arguments ##########################################################################
 if len(argv) < 3:
     print("Run with valid arguments!")
     exit()
@@ -48,12 +48,12 @@ class C: # Colors flags
     cyan = ";36"
     white = ";37"
 
-def stylizes_str(string, color=C.none, style=S.none):
+def stylize_str(string, color=C.none, style=S.none):
     start = "\033[0{}{}m".format(style, color)
     end = "\033[m"
     return "{}{}{}".format(start, string, end)
 
-def get_program_dirr(path):
+def get_program_dir(path):
     for i, char in enumerate(path[::-1]):
         if char == '/':
             return path[:len(path)-i]
@@ -64,18 +64,18 @@ def get_program_name(prev_files, curr_files):
             if file.split(".")[-1] not in ["o", "gch"]:
                 return file
 
-def get_inputs_and_outputs(tests_dirr):
+def get_inputs_and_outputs(tests_dir):
     ins = list()
     outs = list()
 
-    files = listdir(tests_dirr)
+    files = listdir(tests_dir)
     for file in files:
         if file[-3:] == ".in":
             out_pair = f"{file[:-3]}.out"
 
             if out_pair in files:
-                ins.append(f"{tests_dirr}/{file}")
-                outs.append(f"{tests_dirr}/{out_pair}")
+                ins.append(f"{tests_dir}/{file}")
+                outs.append(f"{tests_dir}/{out_pair}")
 
     return ins, outs
 
@@ -126,7 +126,7 @@ def is_correct(out_file, my_file):
             if expected_line != my_line:
                 pos_fails = list()
 
-                # Recalculate lenths ignoring 
+                # Recalculate lengths 
                 if IGNORE_MODE:
                     ex_len = len_to_ignore_mode(expected_line)
                     my_len = len_to_ignore_mode(my_line)
@@ -156,40 +156,40 @@ def is_correct(out_file, my_file):
 
 def define_emoji(n_corrects, n_cases):
     if n_corrects == n_cases:
-        return stylizes_str("(o゜▽゜)o☆", style=S.strong)
+        return stylize_str("(o゜▽゜)o☆", style=S.strong)
     elif n_corrects > 3*n_cases//4:
-        return stylizes_str("o(*￣▽￣*)o", style=S.strong)
+        return stylize_str("o(*￣▽￣*)o", style=S.strong)
     elif n_corrects > n_cases//2:
-        return stylizes_str("^____^", style=S.strong)
+        return stylize_str("^____^", style=S.strong)
     elif n_corrects > n_cases//4:
-        return stylizes_str("(┬┬﹏┬┬)", style=S.strong)
+        return stylize_str("(┬┬﹏┬┬)", style=S.strong)
     else:
-        return stylizes_str("(╯°□°）╯︵ ┻━┻", style=S.strong)
+        return stylize_str("(╯°□°）╯︵ ┻━┻", style=S.strong)
 
 def print_errors(all_errors):
-    ex_indicator = stylizes_str("> |", C.green)
-    my_indicator = stylizes_str("< |", C.red)
-    arrow = stylizes_str("╰-> ", style=S.strong)
+    ex_indicator = stylize_str("> |", C.green)
+    my_indicator = stylize_str("< |", C.red)
+    arrow = stylize_str("╰-> ", style=S.strong)
 
-    separator = stylizes_str('-' * 77, style=S.strong)
+    separator = stylize_str('-' * 77, style=S.strong)
     title = " Differences "
-    print(stylizes_str(f"{title:-^77}", style=S.strong))
+    print(stylize_str(f"{title:-^77}", style=S.strong))
 
     for case, case_errors in all_errors.items():
-        print(stylizes_str(f"Case {case}:", style=S.strong))
+        print(stylize_str(f"Case {case}:", style=S.strong))
 
         for line, error in case_errors.items():
             if line < 0:
                 print(f"{arrow}{error[0]} lines from the line {-line}:")
                 if error[0] == "surplus":
-                    indicator = stylizes_str("< ", C.red)
+                    indicator = stylize_str("< ", C.red)
                     color = C.red
                 elif error[0] == "missing":
-                    indicator = stylizes_str("> ", C.green)
+                    indicator = stylize_str("> ", C.green)
                     color = C.green
 
                 for over_line in error[1:]:
-                    over_line = stylizes_str(over_line, color)
+                    over_line = stylize_str(over_line, color)
                     print(f"{TAB}{indicator}{over_line}", end="")
 
                 break
@@ -205,10 +205,10 @@ def print_errors(all_errors):
                     char = eChr
 
                 if pos in error[2]:
-                    char = stylizes_str(char, C.green)
+                    char = stylize_str(char, C.green)
 
                 print(char, end="")
-            print(stylizes_str("|", C.green))
+            print(stylize_str("|", C.green))
 
             print(f"{TAB}{my_indicator}", end="")
             for pos, mChr in enumerate(error[1]):
@@ -220,17 +220,17 @@ def print_errors(all_errors):
                     char = mChr
 
                 if pos in error[2]:
-                    char = stylizes_str(char, C.red)
+                    char = stylize_str(char, C.red)
                 print(char, end="")
-            print(stylizes_str("|", C.red))
+            print(stylize_str("|", C.red))
 
         print(f"\n{separator}")
 
 # Compile ##########################################################################################
 if PROGRAM_PATH[-8:] == "Makefile":
     mode = MULTIPLE
-    program_dirr = get_program_dirr(PROGRAM_PATH)
-    prev_files = listdir(program_dirr)
+    program_dir = get_program_dir(PROGRAM_PATH)
+    prev_files = listdir(program_dir)
 
     cmd = subprocess.Popen(["make", "all"], stderr=subprocess.PIPE)
     error_out = cmd.stderr.read()
@@ -240,7 +240,7 @@ if PROGRAM_PATH[-8:] == "Makefile":
         print("\nMakefile error! Exiting...")
         exit()
 
-    curr_files = listdir(program_dirr)
+    curr_files = listdir(program_dir)
     program = get_program_name(prev_files, curr_files)
     system(f"rm -f {PROGRAM_PATH[:-8]}*.o {PROGRAM_PATH[:-8]}*.gch")
 
@@ -257,10 +257,10 @@ else:
         print("\nCompilation error! Exiting...")
         exit()
 
-# Set dirr to inputs and outputs ###################################################################
+# Set dir to inputs and outputs ###################################################################
 if TESTS_PATH[-4:] == '.zip':
-    tests_dirr = "tests/"
-    cmd = subprocess.Popen(["unzip", "-qqo", TESTS_PATH, "-d", tests_dirr], stderr=subprocess.PIPE)
+    tests_dir = "tests/"
+    cmd = subprocess.Popen(["unzip", "-qqo", TESTS_PATH, "-d", tests_dir], stderr=subprocess.PIPE)
     error_out = cmd.stderr.read().decode("utf-8")
 
     if error_out:
@@ -270,9 +270,9 @@ if TESTS_PATH[-4:] == '.zip':
         print("Unpacking error! Exiting...")
         exit()
 else:
-    tests_dirr = TESTS_PATH
+    tests_dir = TESTS_PATH
 
-inputs, outputs = get_inputs_and_outputs(tests_dirr)
+inputs, outputs = get_inputs_and_outputs(tests_dir)
 
 # Define the trigger to running ####################################################################
 if mode == MULTIPLE:
@@ -280,7 +280,7 @@ if mode == MULTIPLE:
 elif mode == UNIC:
     trigger = [f"./{program}", ""]
 
-# Run and generates outputs ########################################################################
+# Run and generate outputs ########################################################################
 my_outs = list()
 valgrind_outs = list()
 for inp in inputs:
@@ -305,7 +305,7 @@ all_errors = dict()
 n_cases, n_corrects = 0, 0
 
 title = " Coference "
-print(stylizes_str(f"\n{title:-^77}", style=S.strong))
+print(stylize_str(f"\n{title:-^77}", style=S.strong))
 for out, my_out in zip(outputs, my_outs):
     correct, file_errors = is_correct(out, my_out)
     n_cases += 1
@@ -327,10 +327,10 @@ emoji = define_emoji(n_corrects, n_cases)
 print(f"\n{init} {str(n_corrects).zfill(2)}/{str(n_cases).zfill(2)} correct outputs {end}")
 print(f"{emoji:^86}\n")
 
-# Print errors if ther are #########################################################################
+# Print errors if there are any #########################################################################
 if len(all_errors): print_errors(all_errors)
 
-# Valgrind memory coference ########################################################################
+# Valgrind memory check ########################################################################
 print_mem_check = input("\nWould you like to test your program with valgrind?(y/n) ").lower()
 
 while print_mem_check != "y" and print_mem_check != "yes" and print_mem_check != "n" and print_mem_check != "no":
@@ -340,10 +340,10 @@ print_mem_check = True if print_mem_check[0] == "y" else False
 
 if print_mem_check:
     title = " Memory Check "
-    print(stylizes_str(f"\n{title:-^77}", style=S.strong))
+    print(stylize_str(f"\n{title:-^77}", style=S.strong))
     for i, inp in enumerate(inputs):
         case_name = f"Case {i+1} "
-        print(stylizes_str(f"{case_name:-<77}", style=S.strong))
+        print(stylize_str(f"{case_name:-<77}", style=S.strong))
 
         stdin = open(inp, "rb").read()
         cmd_valgrind = subprocess.Popen(["valgrind", "--leak-check=full", "--show-leak-kinds=all", "--track-origins=yes", f"./{program}"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -356,4 +356,4 @@ system(f"rm -f {program}")
 if TESTS_PATH[-4:] == ".zip":
     system(f"rm -rf tests/")
 
-print(stylizes_str("Byee ヾ(￣▽￣)", style=S.strong))
+print(stylize_str("Byee ヾ(￣▽￣)", style=S.strong))
