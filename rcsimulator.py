@@ -6,6 +6,14 @@ from os import system, listdir, path
 
 TAB = " "*4
 
+def readFile(filename, mode="r"):
+    with open(filename, mode) as f:
+        return f.read()
+
+def writeFile(filename, mode="w+", data):
+    with open(filename, mode) as f:
+        f.write(data)
+
 # Valid paths' arguments ###########################################################################
 if len(argv) < 3:
     print("Run with valid arguments!")
@@ -64,7 +72,7 @@ def get_inputs_and_outputs(tests_dir):
 
     files = listdir(tests_dir)
     for file in files:
-        if file[-3:] == ".in":
+        if file.endswith(".in"):
             out_pair = f"{file[:-3]}.out"
 
             if out_pair in files:
@@ -140,6 +148,9 @@ def is_correct(out_file, my_file):
 
         except UnicodeDecodeError:
             pass
+
+    expected_out.close()
+    my_out.close()
 
     if over_lines:
         errors[-line_posix] = over_lines
@@ -235,7 +246,6 @@ if PROGRAM_PATH.endswith("Makefile"):
     curr_files = listdir(program_dir)
     program = get_program_name(prev_files, curr_files)
     system(f"rm -f {PROGRAM_PATH[:-8]}*.o {PROGRAM_PATH[:-8]}*.gch")
-
 else:
     program = PROGRAM_PATH[:-2]
 
@@ -275,8 +285,7 @@ else:
 my_outs = list()
 valgrind_outs = list()
 for inp in inputs:
-    my_out = f"{inp[:-3]}.myout"
-    stdin = open(inp, "rb").read()
+    stdin = readFile(inp, "rb")
 
     cmd_run = subprocess.Popen([trigger[0], trigger[1]], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, error_out = cmd_run.communicate(stdin)
@@ -288,7 +297,8 @@ for inp in inputs:
         print("Execution error! Exiting...")
         exit()
 
-    open(my_out, "wb").write(out)
+    my_out = f"{inp[:-3]}.myout"
+    writeFile(my_out, "wb+", out)
     my_outs.append(f"{my_out}")
 
 # Check outputs and get errors #####################################################################
@@ -335,7 +345,7 @@ if print_mem_check.startswith("y"):
         case_name = f"Case {i+1} "
         print(stylize_str(f"{case_name:-<77}", style=S.strong))
 
-        stdin = open(inp, "rb").read()
+        stdin = readFile(inp, "rb")
         cmd_valgrind = subprocess.Popen(["valgrind", "--leak-check=full", "--show-leak-kinds=all", "--track-origins=yes", f"./{program}"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, valgrind_out = cmd_valgrind.communicate(stdin)
         print(valgrind_out.decode())
