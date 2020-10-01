@@ -57,7 +57,7 @@ def stylize_str(string, color=C.none, style=S.none):
 
 def get_program_dir(path):
     for i, char in enumerate(reversed(path)):
-        if char == '/':
+        if char == "/":
             return path[:len(path)-i]
 
 def get_program_name(prev_files, curr_files):
@@ -83,7 +83,7 @@ def get_inputs_and_outputs(tests_dir):
 
 def len_to_ignore_mode(line):
     for i, char in enumerate(line):
-        if char in ['\n', '\r']:
+        if char in ["\n", "\r"]:
             return i
 
     # EOF case
@@ -175,7 +175,7 @@ def print_errors(all_errors):
     my_indicator = stylize_str("< |", C.red)
     arrow = stylize_str("╰-> ", style=S.strong)
 
-    separator = stylize_str('-' * 77, style=S.strong)
+    separator = stylize_str("-" * 77, style=S.strong)
     title = " Differences "
     print(stylize_str(f"{title:-^77}", style=S.strong))
 
@@ -201,9 +201,9 @@ def print_errors(all_errors):
             print(f"{arrow}line {line}:")
             print(f"{TAB}{ex_indicator}", end="")
             for pos, eChr in enumerate(error[0]):
-                if eChr == '\r':
+                if eChr == "\r":
                     char = "\\r"
-                elif eChr == '\n':
+                elif eChr == "\n":
                     char = "\\n"
                 else:
                     char = eChr
@@ -216,9 +216,9 @@ def print_errors(all_errors):
 
             print(f"{TAB}{my_indicator}", end="")
             for pos, mChr in enumerate(error[1]):
-                if mChr == '\r':
+                if mChr == "\r":
                     char = "\\r"
-                elif mChr == '\n':
+                elif mChr == "\n":
                     char = "\\n"
                 else:
                     char = mChr
@@ -322,8 +322,8 @@ for out, my_out in zip(outputs, my_outs):
 
         all_errors[n_cases] = file_errors
 
-init = '>' * 27
-end = '<' * 27
+init = ">" * 27
+end = "<" * 27
 emoji = define_emoji(n_corrects, n_cases)
 print(f"\n{init} {str(n_corrects).zfill(2)}/{str(n_cases).zfill(2)} correct outputs {end}")
 print(f"{emoji:^86}\n")
