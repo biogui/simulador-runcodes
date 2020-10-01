@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 # Python Script by Guilherme Rios(Bio) - 2020
+
 import subprocess
 from sys import argv
 from os import system, listdir, path
@@ -10,7 +11,7 @@ def readFile(filename, mode="r"):
     with open(filename, mode) as f:
         return f.read()
 
-def writeFile(filename, mode="w+", data):
+def writeFile(filename, data, mode="w+"):
     with open(filename, mode) as f:
         f.write(data)
 
@@ -82,8 +83,8 @@ def get_inputs_and_outputs(tests_dir):
     return ins, outs
 
 def len_to_ignore_mode(line):
-    for i, char in enumerate(line):
-        if char in ["\n", "\r"]:
+    for i, c in enumerate(line):
+        if c in ["\n", "\r"]:
             return i
 
     # EOF case
@@ -253,7 +254,7 @@ else:
     error_out = cmd.stderr.read()
 
     if error_out:
-        system(f"gcc {flags} {program}.c -o {program}")
+        system(f"gcc -g -Wall -Werror -lm {program}.c -o {program}")
 
         print("\nCompilation error! Exiting...")
         exit()
@@ -298,7 +299,7 @@ for inp in inputs:
         exit()
 
     my_out = f"{inp[:-3]}.myout"
-    writeFile(my_out, "wb+", out)
+    writeFile(my_out, out, "wb+")
     my_outs.append(f"{my_out}")
 
 # Check outputs and get errors #####################################################################
@@ -354,12 +355,6 @@ if print_mem_check.startswith("y"):
 system(f"rm -f {program}")
 
 if TESTS_PATH.endswith(".zip"):
-    system(f"rm -rf tests/")
-
-print(stylize_str("Byee ヾ(￣▽￣)", style=S.strong))##############################
-system(f"rm -f {program}")
-
-if TESTS_PATH[-4:] == ".zip":
     system(f"rm -rf tests/")
 
 print(stylize_str("Byee ヾ(￣▽￣)", style=S.strong))
