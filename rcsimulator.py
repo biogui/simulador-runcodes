@@ -19,7 +19,7 @@ def writeFile(filename, data, mode="w+"):
 if len(argv) < 3:
     print("Run with valid arguments!")
     exit()
-if not path.isdir(argv[-1]) and argv[-1].endswith(".zip"):
+if not path.isdir(argv[-1]) and not argv[-1].endswith(".zip"):
     print("Run with valid tests' path argument!")
     exit()
 if not argv[-2].endswith(".c") and not argv[-2].endswith("Makefile"):
