@@ -1,12 +1,10 @@
 #!/usr/bin/python3
 # Python Script by Guilherme Rios(Bio) - 2020
 
-import posix
 import subprocess
 import os
 import shutil
-from sys       import argv
-from functools import reduce
+from sys import argv
 
 class S: # Style flags
     NONE      = ";0"
@@ -454,7 +452,7 @@ def run_valgrind(inputs, bin_program, files):
 
         case = os.path.basename(inp).rstrip('.in').rjust(2, "0")
         if True in possible_mem_errors.values():
-            result = ["com errors no uso de memória [✖] (ocorreram "]
+            result = ["com erros no uso de memória [✖] (ocorreram "]
 
             possible_mem_errors = dict(filter(lambda e: e[1] == True, possible_mem_errors.items()))
             result.append(" e ".join(map(str.strip, possible_mem_errors.keys())))
@@ -463,7 +461,7 @@ def run_valgrind(inputs, bin_program, files):
             error_valgrind_outs[case.lstrip("0")] = valgrind_out
         else:
             amt_without_errors += 1
-            result = ["sem errors no uso de memória [✔]"]
+            result = ["sem erros no uso de memória [✔]"]
 
         print(f"{TAB}> Caso {case} {''.join(result)}")
 
@@ -506,6 +504,7 @@ def run_valgrind(inputs, bin_program, files):
         user_choice = input("\n".join(input_msg)).lower().lstrip("0")
         while user_choice not in set(wrong_cases + ["s"]):
             user_choice = input("Opção inválida, tente novamente ... ").lower().lstrip("0")
+
 def main():
     print(stylize_str(" RC SIM ".center(LINE_LEN, "-"), style=S.STRONG), end="\n\n")
 
