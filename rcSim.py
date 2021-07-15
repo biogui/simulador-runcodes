@@ -6,35 +6,6 @@ import os
 import shutil
 from sys import argv
 
-class S: # Style flags
-    NONE      = ";0"
-    STRONG    = ";1"
-    BLUR      = ";2"
-    ITALIC    = ";3"
-    UNDERLINE = ";4"
-    FLASH     = ";6"
-    NEGATIVE  = ";7"
-    STRIKE    = ";9"
-
-class C: # Color flags
-    NONE   = ";50"
-    BLACK  = ";30"
-    RED    = ";31"
-    GREEN  = ";32"
-    YELLOW = ";33"
-    BLUE   = ";34"
-    PURPLE = ";35"
-    CYAN   = ";36"
-    WHITE  = ";37"
-
-def stylize_str(string, color=C.NONE, style=S.NONE):
-    start = "\033[0{}{}m".format(style, color)
-    end   = "\033[m"
-
-    stylized_str = f"{start}{string}{end}"
-
-    return stylized_str
-
 SHELL_CLEAR = lambda: os.system('clear')
 
 def wait_next_step(wait_msg):
@@ -48,13 +19,11 @@ TESTS_DIRNAME = "rcSimTestes"
 FILES_DIRNAME = "rcSimArquivos"
 OUTS_DIRNAME  = "rcSimSaidas"
 
-TAB          = " " * 4
-LINE_LEN     = 80
 ARROW        = stylize_str("╰-> ", style=S.STRONG)
 DIV_BAR      = stylize_str("-" * LINE_LEN, style=S.STRONG)
 CASES_P_LINE = 12
 
-GCC_FLAGS      = ["-g", "-Wall", "-Werror", "-lm"]
+GCC_FLAGS      = 
 VALGRIND_FLAGS = "--leak-check=full --show-leak-kinds=all --track-origins=yes"
 VALGRIND_SUCCESS_MSGS = {
     "leaks" : "All heap blocks were freed -- no leaks are possible",
@@ -134,12 +103,6 @@ def check_and_get_cmd_arguments():
         exit()
 
     return program_path.rstrip("/"), tests_path.rstrip("/"), files_path.rstrip("/")
-
-def gen_compile_cmd(program_path):
-    return ["gcc", program_path, "-o", program_path.rstrip(".c")] + GCC_FLAGS
-
-def clean_objets_files(path):
-    os.system(f"rm -f {path}*.o {path}*.gch")
 
 def get_program_name(program_dir):
     files = list(map(lambda f: f"{program_dir}/{f}", os.listdir(program_dir)))
@@ -227,33 +190,6 @@ def define_emoji(amt_corrects, amt_cases):
 
     return stylize_str(emoji, style=S.STRONG)
 
-def compile_and_get_bin_program(program_path, exists_makefile):
-    print(stylize_str(" COMPILAÇÃO ".center(LINE_LEN, "="), style=S.STRONG))
-
-    [os.remove(f) for f in filter(os.path.exists, map(str.rstrip, read_lines(LOG_FILENAME, "r")))]
-
-    if exists_makefile:
-        compile_type = "Makefile"
-        cmd = ["make", "all"]
-    else:
-        compile_type = ".c"
-        cmd = gen_compile_cmd(program_path)
-
-    run = subprocess.Popen(cmd, stderr=subprocess.PIPE)
-    error_out = run.stderr.readlines()
-
-    if error_out:
-        print(f"{TAB}> Erro na compilação com {compile_type}:")
-        os.system(" ".join(cmd))
-        print(f"\n\n{TAB}Ajeita ae e roda de novo, encerrando rcSim ... :(")
-        exit()
-
-    program_dir = os.path.dirname(program_path)
-    clean_objets_files(program_dir)
-    bin_program = get_program_name(program_dir)
-
-    print(f"{TAB}> Programa compilado com sucesso!\n\n")
-    return bin_program
 
 def setup_tests(tests_path, files_path):
     print(stylize_str(" ORGANIZAÇÃO DOS TESTES ".center(LINE_LEN, "="), style=S.STRONG))
