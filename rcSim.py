@@ -328,15 +328,16 @@ def run_and_generation_outputs(bin_program, exists_makefile, inputs, files):
         run = subprocess.Popen(cmd + inp, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, error_out = run.communicate()
 
+        case = os.path.basename(inp).rstrip(".in").rjust(2, '0')
         if error_out:
-            print(f"{TAB}> Erro de execução para o teste {os.path.basename(inp).rjust(5, '0')}:")
+            print(f"{TAB}> Erro de execução para o teste {case}:")
             os.system(" ".join(cmd))
             print(error_out.decode())
-            run_errors.append(inp.rstrip(".in"))
+            run_errors.append(case)
         else:
             print(f"{TAB}> Caso {os.path.basename(inp).rjust(5, '0')} executado com sucesso!")
 
-            my_out_filename = f"{my_outs_dir}/{os.path.basename(inp).replace('.in', '.myout')}"
+            my_out_filename = f"{my_outs_dir}/{case}.myout"
             write_file(my_out_filename, out, "wb+")
             my_outs.append(my_out_filename)
     print()
@@ -521,8 +522,13 @@ def main():
     my_outputs, run_errors = run_and_generation_outputs(bin_program, exists_makefile, inputs, files)
 
     if run_errors:
-        error_cases = ", ".join(run_errors)
-        print(f"\nCorrija os erros dos casos {error_cases} e depois rode novamente")
+        error_cases = [
+            run_errors[i:i+CASES_P_LINE] for i in range(0, len(run_errors), CASES_P_LINE)
+        ]
+        error_cases = ["   ".join(l) for l in error_cases]
+        print(f"\nCorrija os erros dos casos abaixo e depois rode novamente:")
+        print("\n".join(error_cases))
+
         return
 
     wait_next_step("Pressione enter para iniciar a checagem das saídas ... ")
