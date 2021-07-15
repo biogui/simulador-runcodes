@@ -17,7 +17,7 @@ Obrigado por testar, feedbacks são bem vindos no meu telegram [(clica aqui)](ht
 
 ## **Instalando**
 Certifique-se de:
-- Ter uma versão recente [(3.x.x)](https://realpython.com/installing-python/) de  ***python*** instalada.
+- Ter uma versão recente [(3.x.x)](https://www.python.org/downloads/) de  ***python*** instalada.
 - Ter as seguintes ferramentas disponíveis em seu terminal Linux:
 	- ***gcc***      - use `sudo apt install gcc`
 	- ***valgrind*** - use `sudo apt install valgrind`
