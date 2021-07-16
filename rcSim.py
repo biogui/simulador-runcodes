@@ -147,9 +147,14 @@ def get_program_name(program_dir):
 
     return files[0]
 
-def clean_files_from_path(tests_dir, filter_func):
-    files = list(filter(filter_func, os.listdir(tests_dir)))
-    [os.remove(f) for f in map(lambda f: f"{tests_dir}/{f}", files)]
+def clean_files_from_path(path, filter_func):
+    files = list(filter(filter_func, os.listdir(path)))
+    [os.remove(f) for f in map(lambda f: f"{path}/{f}", files)]
+
+def copy_files_from_path(src_path, dest_path):
+    files = list(filter(os.path.isfile, os.listdir(src_path)))
+    print(f"{src_path}/djsfhksdj", f"{dest_path}/fdsksdlkf")
+    [shutil.copyfile(f"{src_path}/{f}", f"{dest_path}/{f}") for f in files]
 
 def get_inputs_and_outputs(tests_dir):
     ins = list(filter(lambda f: f.endswith(".in"), os.listdir(tests_dir)))
@@ -275,7 +280,8 @@ def setup_tests(tests_path, files_path):
         tests_type = "pasta"
 
         if os.path.exists(tests_dir): shutil.rmtree(tests_dir)
-        shutil.copytree(tests_path, tests_dir)
+        os.mkdir(tests_dir)
+        copy_files_from_path(tests_path, tests_dir)
 
     clean_files_from_path(tests_dir, lambda f: not (f.endswith(".in") or f.endswith(".out")))
     inputs, outputs = get_inputs_and_outputs(tests_dir)
@@ -301,7 +307,8 @@ def setup_tests(tests_path, files_path):
         tests_type = "pasta"
 
         if os.path.exists(files_dir): shutil.rmtree(files_dir)
-        shutil.copytree(files_path, files_dir)
+        os.mkdir(files_dir)
+        copy_files_from_path(files_path, files_dir)
 
     clean_files_from_path(files_dir, lambda f: f.endswith(".in") or f.endswith(".out"))
     files = list(map(lambda f: f"{files_dir}/{f}", os.listdir(files_dir)))
