@@ -152,9 +152,9 @@ def clean_files_from_path(path, filter_func):
     [os.remove(f) for f in map(lambda f: f"{path}/{f}", files)]
 
 def copy_files_from_path(src_path, dest_path):
-    files = list(filter(os.path.isfile, os.listdir(src_path)))
-    print(f"{src_path}/djsfhksdj", f"{dest_path}/fdsksdlkf")
-    [shutil.copyfile(f"{src_path}/{f}", f"{dest_path}/{f}") for f in files]
+    files = list(map(lambda f: f"{src_path}/{f}", os.listdir(src_path)))
+    files = list(filter(os.path.isfile, files))
+    [shutil.copyfile(f, f"{dest_path}/{os.path.basename(f)}") for f in files]
 
 def get_inputs_and_outputs(tests_dir):
     ins = list(filter(lambda f: f.endswith(".in"), os.listdir(tests_dir)))
